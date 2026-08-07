@@ -14,10 +14,17 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
   <link rel="preconnect" href="https://calendly.com" />
   <link rel="preconnect" href="https://assets.calendly.com" crossorigin />
+  <!-- Wistia (Aurora player) origins. -->
+  <link rel="preconnect" href="https://fast.wistia.com" />
+  <link rel="preconnect" href="https://fast.wistia.net" crossorigin />
+  <link rel="preconnect" href="https://embed-ssl.wistia.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Roboto+Slab:wght@400;900&display=swap"
     rel="stylesheet"
   />
+  <!-- Wistia Aurora runtime + this media's module (async). -->
+  <script src="https://fast.wistia.com/player.js" async></script>
+  <script src="https://fast.wistia.com/embed/62a1kz3l45.js" async type="module"></script>
 
   <style>
     :root {
@@ -245,6 +252,21 @@
       width: 100%;
       height: 100%;
       border: 0;
+    }
+    /* Hero Wistia Aurora player: fill the 16:9 frame; show a blurred swatch */
+    /* poster while the web component upgrades (:not(:defined)).             */
+    .video-frame wistia-player {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+    .video-frame wistia-player[media-id='62a1kz3l45']:not(:defined) {
+      background: #000 center / contain no-repeat
+        url('https://fast.wistia.com/embed/medias/62a1kz3l45/swatch');
+      filter: blur(5px);
     }
 
     /* ============ MIRO BOARD (Client Results) ============ */
@@ -1126,14 +1148,9 @@
           (the video right below will explain everything)
         </p>
 
-        <!-- LOOM VIDEO FRAME -->
+        <!-- HERO VIDEO FRAME (Wistia Aurora player, hardwired 1.5x) -->
         <div class="video-frame fade-up mt-10">
-          <iframe
-            src="https://www.loom.com/embed/619a972ca2334dbfa08b474b4c0a0862"
-            title="Walkthrough for Blaze Shetler"
-            allowfullscreen
-            allow="autoplay; fullscreen; picture-in-picture">
-          </iframe>
+          <wistia-player media-id="62a1kz3l45" aspect="1.7777777777777777" playback-rate="1.5"></wistia-player>
         </div>
 
         <!-- CALL TO ACTION -->
@@ -1669,6 +1686,25 @@
   </div>
 
   <script>
+    // HERO VIDEO — hardwired 1.5x, pitch preserved (Aurora player).
+    (function () {
+      var RATE = 1.5;
+      var el = document.querySelector('wistia-player[media-id="62a1kz3l45"]');
+      if (!el) return;
+      function apply() {
+        try { if (el.playbackRate !== RATE) el.playbackRate = RATE; } catch (e) {}
+      }
+      function wire() {
+        apply();
+        ["play", "playing", "ended", "seeked", "seek", "end"].forEach(function (ev) {
+          el.addEventListener(ev, apply);
+        });
+      }
+      if (window.customElements && customElements.whenDefined) {
+        customElements.whenDefined("wistia-player").then(wire);
+      } else { wire(); }
+    })();
+
     // Fade-up on scroll via IntersectionObserver.
     (function () {
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

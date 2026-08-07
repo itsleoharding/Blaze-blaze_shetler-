@@ -1,0 +1,3 @@
+# Local video files are not part of the deployed hub (the hero video is a
+# Wistia embed). Keep large media out of the repo — GitHub caps files at 100 MB.
+*.mp4
