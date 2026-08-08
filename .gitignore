@@ -1,3 +1,6 @@
-# Local video files are not part of the deployed hub (the hero video is a
-# Wistia embed). Keep large media out of the repo — GitHub caps files at 100 MB.
+# Keep large local media out of the repo (GitHub caps files at 100 MB).
+# The hero uses a self-hosted MP4, so track that one file (Video.mp4, ~74 MB,
+# 720p faststart) and ignore everything else — e.g. the uncompressed source
+# Video.source.mp4 (~978 MB) that Video.mp4 was compressed from.
 *.mp4
+!Video.mp4
