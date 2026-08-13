@@ -29,6 +29,9 @@
       --ink: #f4f4f1;
       --muted: #a6a6a6;
       --hairline: rgba(255, 255, 255, 0.08);
+      /* Instance-card preview obscuring. */
+      --dp-blur: 5px;
+      --dp-tint: rgba(0, 0, 0, 0.35);
     }
 
     /* ---- Base reset. Replaces the parts of Tailwind's preflight the layout */
@@ -678,6 +681,74 @@
       text-align: center;
     }
 
+    /* ============ INSTANCE-CARD ASSET PREVIEW (obscured, decorative) ======== */
+    /* A blurred + tinted + vignetted window that JS inserts between a LIVE     */
+    /* card's sample-label and its CTA. Visual types render the real asset;     */
+    /* pdf types render a drawn makeshift document face (no PDF.js, no fetch).   */
+    /* pointer-events:none + aria-hidden — the CTA stays the only way to open    */
+    /* the lightbox. The frame stays sharp; only the media blurs.               */
+    .dp {
+      position: relative;
+      width: 100%;
+      margin-top: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--hairline);
+      background: var(--card);
+      overflow: hidden;
+      box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.5);
+      pointer-events: none;
+    }
+    /* Front face + any stack layers blur together; the .dp frame is untouched. */
+    .dp-inner {
+      position: absolute;
+      inset: 0;
+      filter: blur(var(--dp-blur));
+      transform: scale(1.05);
+      transform-origin: center;
+    }
+    .dp--top .dp-inner { transform-origin: top center; }
+    .dp-face, .dp-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    .dp-face { z-index: 3; }
+    .dp-layer { z-index: 1; }
+    .dp-face > img, .dp-layer > img,
+    .dp-face > svg, .dp-layer > svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    /* Ratio-matched media (image / carousel / drawn doc) crops to fill. */
+    .dp-cover .dp-face > img, .dp-cover .dp-layer > img { object-fit: cover; }
+    /* Landing pages: true horizontal scale, pinned to the pixel-true TOP. */
+    .dp--top .dp-face > img { width: 100%; height: auto; }
+    /* Flat tint + radial vignette (edges darker); above the media, never blurred. */
+    .dp-veil {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      background:
+        radial-gradient(ellipse at 50% 42%, rgba(0, 0, 0, 0) 38%, rgba(0, 0, 0, 0.55) 100%),
+        var(--dp-tint);
+    }
+    /* Quiet loading state until each face renders. */
+    .dp.dp-loading::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.06) 50%, rgba(255, 255, 255, 0) 100%);
+      animation: dp-shimmer 1.3s ease-in-out infinite;
+    }
+    @keyframes dp-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+    @media (prefers-reduced-motion: reduce) { .dp.dp-loading::after { animation: none; } }
+
     /* ============ COMING-SOON / ASSET-PENDING PLACEHOLDER STATE ============ */
     /* This is the SHELL build: every tile ships with its lightbox anchor      */
     /* fully wired but pointing at a bracketed [TOKEN]. A small script (below) */
@@ -1298,7 +1369,7 @@
                   <div class="mt-6">
                     <a class="cta-button cta-sm"
                        href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Video.pdf"
-                       data-lb data-lb-type="pdf" data-lb-title="Direct-to-camera ad script"
+                       data-lb data-lb-type="pdf" data-preview="doc-single" data-lb-title="Direct-to-camera ad script"
                        target="_blank" rel="noopener noreferrer">
                       <span class="cta-main">Get A Closer View</span>
                       <span class="cta-sub">Click here to open it up...</span>
@@ -1404,7 +1475,7 @@
                   <div class="mt-6">
                     <a class="cta-button cta-sm"
                        href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Webinar/Email.pdf"
-                       data-lb data-lb-type="pdf" data-lb-title="Pre-webinar email sequence"
+                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-webinar email sequence"
                        target="_blank" rel="noopener noreferrer">
                       <span class="cta-main">Get A Closer View</span>
                       <span class="cta-sub">Click here to open it up...</span>
@@ -1418,7 +1489,7 @@
                   <div class="mt-6">
                     <a class="cta-button cta-sm"
                        href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Webinar/Whatsapp%20Group.pdf"
-                       data-lb data-lb-type="pdf" data-lb-title="Pre-webinar WhatsApp group messages"
+                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-webinar WhatsApp group messages"
                        target="_blank" rel="noopener noreferrer">
                       <span class="cta-main">Get A Closer View</span>
                       <span class="cta-sub">Click here to open it up...</span>
@@ -1438,7 +1509,7 @@
                   <div class="mt-6">
                     <a class="cta-button cta-sm"
                        href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Post-Webinar/Email.pdf"
-                       data-lb data-lb-type="pdf" data-lb-title="Post-webinar email sequence"
+                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Post-webinar email sequence"
                        target="_blank" rel="noopener noreferrer">
                       <span class="cta-main">Get A Closer View</span>
                       <span class="cta-sub">Click here to open it up...</span>
@@ -1452,7 +1523,7 @@
                   <div class="mt-6">
                     <a class="cta-button cta-sm"
                        href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Post-Webinar/Whatsapp%20Group.pdf"
-                       data-lb data-lb-type="pdf" data-lb-title="Post-webinar WhatsApp group messages"
+                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Post-webinar WhatsApp group messages"
                        target="_blank" rel="noopener noreferrer">
                       <span class="cta-main">Get A Closer View</span>
                       <span class="cta-sub">Click here to open it up...</span>
@@ -1472,7 +1543,7 @@
                   <div class="mt-6">
                     <a class="cta-button cta-sm"
                        href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Call/Email.pdf"
-                       data-lb data-lb-type="pdf" data-lb-title="Pre-call email sequence"
+                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call email sequence"
                        target="_blank" rel="noopener noreferrer">
                       <span class="cta-main">Get A Closer View</span>
                       <span class="cta-sub">Click here to open it up...</span>
@@ -1486,7 +1557,7 @@
                   <div class="mt-6">
                     <a class="cta-button cta-sm"
                        href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Call/Whatsapp%20Group.pdf"
-                       data-lb data-lb-type="pdf" data-lb-title="Pre-call WhatsApp group messages"
+                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call WhatsApp group messages"
                        target="_blank" rel="noopener noreferrer">
                       <span class="cta-main">Get A Closer View</span>
                       <span class="cta-sub">Click here to open it up...</span>
@@ -1512,7 +1583,7 @@
                 <div class="mt-6">
                   <a class="cta-button cta-sm"
                      href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Webinar/Slideshow.pdf"
-                     data-lb data-lb-type="pdf" data-lb-title="Webinar slideshow"
+                     data-lb data-lb-type="pdf" data-preview="deck-stack" data-lb-title="Webinar slideshow"
                      target="_blank" rel="noopener noreferrer">
                     <span class="cta-main">Get A Closer View</span>
                     <span class="cta-sub">Click here to open it up...</span>
@@ -1594,7 +1665,7 @@
                   <div class="mt-6">
                     <a class="cta-button cta-sm"
                        href="Sample%20Deliverables/Organic%20Content%20To%20VSL%20Funnel/Sequences/Pre-Call/Email.pdf"
-                       data-lb data-lb-type="pdf" data-lb-title="Pre-call email sequence"
+                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call email sequence"
                        target="_blank" rel="noopener noreferrer">
                       <span class="cta-main">Get A Closer View</span>
                       <span class="cta-sub">Click here to open it up...</span>
@@ -1608,7 +1679,7 @@
                   <div class="mt-6">
                     <a class="cta-button cta-sm"
                        href="Sample%20Deliverables/Organic%20Content%20To%20VSL%20Funnel/Sequences/Pre-Call/Whatsapp%20Group.pdf"
-                       data-lb data-lb-type="pdf" data-lb-title="Pre-call WhatsApp group messages"
+                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call WhatsApp group messages"
                        target="_blank" rel="noopener noreferrer">
                       <span class="cta-main">Get A Closer View</span>
                       <span class="cta-sub">Click here to open it up...</span>
@@ -1634,7 +1705,7 @@
                 <div class="mt-6">
                   <a class="cta-button cta-sm"
                      href="Sample%20Deliverables/Organic%20Content%20To%20VSL%20Funnel/Video%20Sales%20Letter/Script.pdf"
-                     data-lb data-lb-type="pdf" data-lb-title="Video sales letter script"
+                     data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Video sales letter script"
                      target="_blank" rel="noopener noreferrer">
                     <span class="cta-main">Get A Closer View</span>
                     <span class="cta-sub">Click here to open it up...</span>
@@ -2078,6 +2149,181 @@
         a.innerHTML =
           '<span class="cs-label"><span class="cs-dot"></span>' + label + "</span>";
       });
+    })();
+
+    // ===========================================================
+    // INSTANCE-CARD ASSET PREVIEW
+    // For every LIVE (unbracketed) a[data-lb], insert a decorative, obscured
+    // preview window between the card's sample-label and its CTA. Visual types
+    // (image / carousel / scroll-image) render the REAL asset; pdf types render
+    // a drawn makeshift document face (no PDF.js, no fetch). Windows are lazy
+    // (IntersectionObserver) and pointer-events:none — the CTA still owns the
+    // click, and the lightbox / coming-soon logic is untouched.
+    // ===========================================================
+    (function () {
+      // Exposed tunables (also drive the CSS obscuring vars).
+      var BLUR_PX = 5;              // media blur radius
+      var TINT_ALPHA = 0.35;        // flat dark tint alpha
+      var CAROUSEL_STACK_MAX = 3;   // max faces shown for a carousel (front + behind)
+      var DOC_STACK = 3;            // pages behind a doc-stack face
+      var DECK_STACK = 4;           // slides behind a deck-stack face
+      document.documentElement.style.setProperty("--dp-blur", BLUR_PX + "px");
+      document.documentElement.style.setProperty("--dp-tint", "rgba(0, 0, 0, " + TINT_ALPHA + ")");
+
+      var STEP = 5; // stack offset per layer, % of window
+
+      // Lazy render near the viewport.
+      var io = ("IntersectionObserver" in window)
+        ? new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+              if (!e.isIntersecting) return;
+              io.unobserve(e.target);
+              if (e.target.__dpRender) e.target.__dpRender();
+            });
+          }, { rootMargin: "200px" })
+        : null;
+      function observe(dp, fn) { if (io) { dp.__dpRender = fn; io.observe(dp); } else fn(); }
+
+      function veil(dp) {
+        var v = document.createElement("div");
+        v.className = "dp-veil";
+        dp.appendChild(v);
+      }
+      function done(dp) { dp.classList.remove("dp-loading"); }
+
+      // One un-stacked face holding a loaded <img> element or an HTML string.
+      function single(dp, content) {
+        var inner = document.createElement("div");
+        inner.className = "dp-inner";
+        var face = document.createElement("div");
+        face.className = "dp-face";
+        if (typeof content === "string") face.innerHTML = content;
+        else face.appendChild(content);
+        inner.appendChild(face);
+        dp.appendChild(inner);
+        veil(dp);
+      }
+
+      // Front face + n faint offset layers behind it (a pile). content is an
+      // HTML string reused for each layer (same src => one network fetch).
+      function stack(dp, content, n) {
+        var inner = document.createElement("div");
+        inner.className = "dp-inner";
+        var size = 100 - STEP * n;
+        for (var k = n; k >= 1; k--) {
+          var lay = document.createElement("div");
+          lay.className = "dp-layer";
+          lay.style.left = (k * STEP) + "%";
+          lay.style.top = (k * STEP) + "%";
+          lay.style.width = size + "%";
+          lay.style.height = size + "%";
+          lay.style.opacity = String(Math.max(0.2, 0.55 - (k - 1) * 0.1));
+          lay.innerHTML = content;
+          inner.appendChild(lay);
+        }
+        var face = document.createElement("div");
+        face.className = "dp-face";
+        face.style.width = size + "%";
+        face.style.height = size + "%";
+        face.innerHTML = content;
+        inner.appendChild(face);
+        dp.appendChild(inner);
+        veil(dp);
+      }
+
+      // Drawn "out-of-focus text document" face — near-white page, heading bar,
+      // varied-width text lines, a paragraph gap, a second heading bar, more
+      // lines. Fills to the page's aspect (portrait doc, or wider for a deck).
+      function docSVG(landscape) {
+        var W = landscape ? 320 : 170, H = landscape ? 180 : 220;
+        var m = Math.round(W * 0.09), cw = W - 2 * m;
+        var lh = Math.max(3, Math.round(H * 0.022));
+        var gap = Math.round(lh * 1.7), th = Math.max(2, Math.round(lh * 0.62));
+        var y = m, out = [];
+        out.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="' + Math.round(W * 0.02) + '" fill="#f4f4f2"/>');
+        function heading(wf) { out.push('<rect x="' + m + '" y="' + y + '" width="' + Math.round(cw * wf) + '" height="' + Math.round(lh * 1.1) + '" rx="2" fill="#9a9a9a"/>'); y += Math.round(lh * 1.1) + gap; }
+        function line(wf) { out.push('<rect x="' + m + '" y="' + y + '" width="' + Math.round(cw * wf) + '" height="' + th + '" rx="1.5" fill="#cfcfcf"/>'); y += gap; }
+        var widths = [1, 0.94, 0.97, 0.72, 1, 0.9, 0.85, 0.96, 0.78, 0.92, 0.88, 0.7, 0.95, 0.83], wi = 0;
+        heading(0.45);
+        while (y < H * 0.52 && wi < widths.length) line(widths[wi++]);
+        y += Math.round(gap * 0.7);
+        if (y < H - m - lh) heading(0.4);
+        while (y < H - m - th && wi < widths.length) line(widths[wi++]);
+        return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' + out.join("") + '</svg>';
+      }
+
+      function pdfKind(a) {
+        var explicit = a.getAttribute("data-preview");
+        if (explicit) return explicit;
+        var href = decodeURIComponent(a.getAttribute("href") || "");
+        if (/Ad Creatives\/Video\.pdf$/i.test(href)) return "doc-single";
+        if (/Webinar\/Slideshow\.pdf$/i.test(href)) return "deck-stack";
+        return "doc-stack";
+      }
+
+      function render(dp, a, type, src0) {
+        if (type === "pdf") {
+          var kind = pdfKind(a);
+          var landscape = kind === "deck-stack";
+          dp.classList.add("dp-cover");
+          dp.style.aspectRatio = landscape ? "16 / 9" : "8.5 / 11";
+          var n = kind === "doc-stack" ? DOC_STACK : kind === "deck-stack" ? DECK_STACK : 0;
+          var svg = docSVG(landscape);
+          if (n > 0) stack(dp, svg, n); else single(dp, svg);
+          done(dp);
+          return;
+        }
+        if (type === "scroll-image") {
+          dp.classList.add("dp--top");
+          dp.style.aspectRatio = "5 / 6";
+          var im = new Image();
+          im.decoding = "async";
+          im.onload = function () { single(dp, im); done(dp); };
+          im.onerror = function () { dp.remove(); };
+          im.src = a.getAttribute("href");
+          return;
+        }
+        // image or carousel: load the (first) real asset for its natural ratio.
+        dp.classList.add("dp-cover");
+        var img = new Image();
+        img.decoding = "async";
+        img.onload = function () {
+          dp.style.aspectRatio = (img.naturalWidth && img.naturalHeight)
+            ? img.naturalWidth + " / " + img.naturalHeight : "1 / 1";
+          if (type === "carousel") {
+            var count = (a.getAttribute("data-lb-srcs") || "").split("|").filter(Boolean).length;
+            var layers = Math.max(0, Math.min(count, CAROUSEL_STACK_MAX) - 1);
+            var html = '<img src="' + src0 + '" alt="">';
+            if (layers > 0) stack(dp, html, layers); else single(dp, html);
+          } else {
+            single(dp, img);
+          }
+          done(dp);
+        };
+        img.onerror = function () { dp.remove(); };
+        img.src = src0;
+      }
+
+      function build(a) {
+        var card = a.closest(".block-card");
+        if (!card) return;
+        var label = card.querySelector(".sample-label");
+        if (!label) return;
+        var type = a.getAttribute("data-lb-type") || "image";
+        var src0 = type === "carousel"
+          ? (a.getAttribute("data-lb-srcs") || "").split("|")[0]
+          : (a.getAttribute("href") || "");
+        // LIVE-ONLY: bracketed / coming-soon cards get no preview window.
+        if (!src0 || src0.charAt(0) === "[") return;
+
+        var dp = document.createElement("div");
+        dp.className = "dp dp-loading";
+        dp.setAttribute("aria-hidden", "true");
+        label.parentNode.insertBefore(dp, label.nextSibling);
+        observe(dp, function () { render(dp, a, type, src0); });
+      }
+
+      document.querySelectorAll("a[data-lb]").forEach(build);
     })();
 
     // ===========================================================
