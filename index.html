@@ -842,6 +842,36 @@
       color: var(--muted);
     }
 
+    /* ============ PART COLUMNS (vertical one-card-tall scrollers) ============ */
+    /* A type WITH parts lays its parts out as columns across the horizontal      */
+    /* slider (above); WITHIN each column the instances scroll VERTICALLY inside  */
+    /* a fixed window one instance-card tall (height set by JS = the part's       */
+    /* tallest card) with vertical snap, so the widget never grows tall with      */
+    /* instance count. The part label stays above the scroller; the hint below.   */
+    .part-vscroll {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(177, 247, 204, 0.4) transparent;
+    }
+    /* Cards here are vertical snap targets and fill the column width (override    */
+    /* the horizontal slider's width:250px / centre snap for these nested cards). */
+    .part-vscroll > .block-card {
+      flex: 0 0 auto;
+      width: 100%;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+    .part-vscroll::-webkit-scrollbar { width: 8px; }
+    .part-vscroll::-webkit-scrollbar-track { background: transparent; }
+    .part-vscroll::-webkit-scrollbar-thumb { background-color: rgba(177, 247, 204, 0.3); border-radius: 9999px; }
+    .part-hint { text-align: center; }
+
     /* ============ CALL TO ACTION BUTTON ============ */
     /* Flat sage with dark text (the agency's colours). Two-line structure:    */
     /* bold serif main line + mono sub-line, with a hover lift.                */
@@ -1302,69 +1332,74 @@
               <div style="position: relative; flex: 0 0 auto; width: 250px; scroll-snap-align: center;">
                 <button class="info-btn" type="button" data-info="type-cold-ad-static"><span aria-hidden="true">i</span></button>
                 <p class="sample-label" style="font-size: 1.02rem;">Static</p>
+              <div class="part-vscroll mt-6">
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-ad-square"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">Square</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Single.png"
-                       data-lb data-lb-type="image" data-lb-title="Square ad creative"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-ad-square"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">Square</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Single.png"
+                         data-lb data-lb-type="image" data-lb-title="Square ad creative"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-ad-rectangle"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">Rectangle</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Story.jpg"
-                       data-lb data-lb-type="image" data-lb-title="Rectangle ad creative"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-ad-rectangle"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">Rectangle</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Story.jpg"
+                         data-lb data-lb-type="image" data-lb-title="Rectangle ad creative"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-ad-carousel"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">Carousel</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%201.png"
-                       data-lb data-lb-type="carousel" data-lb-title="Carousel ad creative"
-                       data-lb-srcs="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%201.png|Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%202.png|Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%203.png|Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%204.png|Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%205.png"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-ad-carousel"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">Carousel</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%201.png"
+                         data-lb data-lb-type="carousel" data-lb-title="Carousel ad creative"
+                         data-lb-srcs="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%201.png|Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%202.png|Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%203.png|Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%204.png|Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Carousel/Slide%205.png"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
+              </div>
+              <p class="slider-hint part-hint mt-4">Scroll for more &darr;</p>
               </div>
 
               <!-- Video -->
               <div style="position: relative; flex: 0 0 auto; width: 250px; scroll-snap-align: center;">
                 <button class="info-btn" type="button" data-info="type-cold-ad-video-part"><span aria-hidden="true">i</span></button>
                 <p class="sample-label" style="font-size: 1.02rem;">Video</p>
+              <div class="part-vscroll mt-6">
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-ad-dtc"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">Direct-to-camera</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Video.pdf"
-                       data-lb data-lb-type="pdf" data-preview="doc-single" data-lb-title="Direct-to-camera ad script"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-ad-dtc"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">Direct-to-camera</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Ad%20Creatives/Video.pdf"
+                         data-lb data-lb-type="pdf" data-preview="doc-single" data-lb-title="Direct-to-camera ad script"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
+              </div>
               </div>
 
             </div>
@@ -1457,102 +1492,111 @@
               <div style="position: relative; flex: 0 0 auto; width: 250px; scroll-snap-align: center;">
                 <button class="info-btn" type="button" data-info="type-cold-seq-prewebinar"><span aria-hidden="true">i</span></button>
                 <p class="sample-label" style="font-size: 1.02rem;">Pre-Webinar</p>
+              <div class="part-vscroll mt-6">
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-seq-prewebinar-email"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">Email</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Webinar/Email.pdf"
-                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-webinar email sequence"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-seq-prewebinar-email"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">Email</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Webinar/Email.pdf"
+                         data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-webinar email sequence"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-seq-prewebinar-whatsapp"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">WhatsApp Group</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Webinar/Whatsapp%20Group.pdf"
-                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-webinar WhatsApp group messages"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-seq-prewebinar-whatsapp"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">WhatsApp Group</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Webinar/Whatsapp%20Group.pdf"
+                         data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-webinar WhatsApp group messages"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
+              </div>
+              <p class="slider-hint part-hint mt-4">Scroll for more &darr;</p>
               </div>
 
               <!-- Post-Webinar -->
               <div style="position: relative; flex: 0 0 auto; width: 250px; scroll-snap-align: center;">
                 <button class="info-btn" type="button" data-info="type-cold-seq-postwebinar"><span aria-hidden="true">i</span></button>
                 <p class="sample-label" style="font-size: 1.02rem;">Post-Webinar</p>
+              <div class="part-vscroll mt-6">
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-seq-postwebinar-email"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">Email</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Post-Webinar/Email.pdf"
-                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Post-webinar email sequence"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-seq-postwebinar-email"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">Email</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Post-Webinar/Email.pdf"
+                         data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Post-webinar email sequence"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-seq-postwebinar-whatsapp"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">WhatsApp Group</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Post-Webinar/Whatsapp%20Group.pdf"
-                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Post-webinar WhatsApp group messages"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-seq-postwebinar-whatsapp"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">WhatsApp Group</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Post-Webinar/Whatsapp%20Group.pdf"
+                         data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Post-webinar WhatsApp group messages"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
+              </div>
+              <p class="slider-hint part-hint mt-4">Scroll for more &darr;</p>
               </div>
 
               <!-- Pre-Call -->
               <div style="position: relative; flex: 0 0 auto; width: 250px; scroll-snap-align: center;">
                 <button class="info-btn" type="button" data-info="type-cold-seq-precall"><span aria-hidden="true">i</span></button>
                 <p class="sample-label" style="font-size: 1.02rem;">Pre-Call</p>
+              <div class="part-vscroll mt-6">
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-seq-precall-email"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">Email</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Call/Email.pdf"
-                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call email sequence"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-seq-precall-email"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">Email</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Call/Email.pdf"
+                         data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call email sequence"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-cold-seq-precall-whatsapp"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">WhatsApp Group</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Call/Whatsapp%20Group.pdf"
-                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call WhatsApp group messages"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-cold-seq-precall-whatsapp"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">WhatsApp Group</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Paid%20Ads%20To%20Webinar%20Funnel/Sequences/Pre-Call/Whatsapp%20Group.pdf"
+                         data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call WhatsApp group messages"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
+              </div>
+              <p class="slider-hint part-hint mt-4">Scroll for more &darr;</p>
               </div>
 
             </div>
@@ -1647,34 +1691,37 @@
               <div style="position: relative; flex: 0 0 auto; width: 250px; scroll-snap-align: center;">
                 <button class="info-btn" type="button" data-info="type-warm-seq-precall"><span aria-hidden="true">i</span></button>
                 <p class="sample-label" style="font-size: 1.02rem;">Pre-Call</p>
+              <div class="part-vscroll mt-6">
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-warm-seq-precall-email"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">Email</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Organic%20Content%20To%20VSL%20Funnel/Sequences/Pre-Call/Email.pdf"
-                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call email sequence"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-warm-seq-precall-email"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">Email</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Organic%20Content%20To%20VSL%20Funnel/Sequences/Pre-Call/Email.pdf"
+                         data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call email sequence"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
 
-                <article class="block-card mt-6">
-                  <button class="info-btn" type="button" data-info="inst-warm-seq-precall-whatsapp"><span aria-hidden="true">i</span></button>
-                  <p class="sample-label">WhatsApp Group</p>
-                  <div class="mt-6">
-                    <a class="cta-button cta-sm"
-                       href="Sample%20Deliverables/Organic%20Content%20To%20VSL%20Funnel/Sequences/Pre-Call/Whatsapp%20Group.pdf"
-                       data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call WhatsApp group messages"
-                       target="_blank" rel="noopener noreferrer">
-                      <span class="cta-main">Get A Closer View</span>
-                      <span class="cta-sub">Click here to open it up...</span>
-                    </a>
-                  </div>
-                </article>
+                  <article class="block-card">
+                    <button class="info-btn" type="button" data-info="inst-warm-seq-precall-whatsapp"><span aria-hidden="true">i</span></button>
+                    <p class="sample-label">WhatsApp Group</p>
+                    <div class="mt-6">
+                      <a class="cta-button cta-sm"
+                         href="Sample%20Deliverables/Organic%20Content%20To%20VSL%20Funnel/Sequences/Pre-Call/Whatsapp%20Group.pdf"
+                         data-lb data-lb-type="pdf" data-preview="doc-stack" data-lb-title="Pre-call WhatsApp group messages"
+                         target="_blank" rel="noopener noreferrer">
+                        <span class="cta-main">Get A Closer View</span>
+                        <span class="cta-sub">Click here to open it up...</span>
+                      </a>
+                    </div>
+                  </article>
+              </div>
+              <p class="slider-hint part-hint mt-4">Scroll for more &darr;</p>
               </div>
 
             </div>
@@ -1724,9 +1771,11 @@
             <!-- iframe absolutely filling it, so the board scales with the      -->
             <!-- widget width and never overflows / clips on mobile.             -->
             <div class="miro-frame">
-              <!-- Live Miro board embed URL (from Miro Share > Embed). -->
+              <!-- Live Miro board embed URL (Share > Embed). moveToViewport pins -->
+              <!-- the board to a fixed view so it loads the same on every refresh. -->
               <iframe
-                src="https://miro.com/app/live-embed/uXjVHTCSuB4=/?embedMode=view_only_without_ui&embedId=352656375421"
+                width="768" height="432"
+                src="https://miro.com/app/live-embed/uXjVHTCSuB4=/?embedMode=view_only_without_ui&moveToViewport=-60877,-75597,28176,13985&embedId=529974374057"
                 title="Client results board"
                 frameborder="0"
                 scrolling="no"
@@ -2647,6 +2696,37 @@
       });
       if (closeBtn) closeBtn.addEventListener("click", closeModal);
       if (backdrop) backdrop.addEventListener("click", closeModal);
+    })();
+
+    // ===========================================================
+    // PART COLUMNS — vertical one-card-tall scrollers
+    // A type WITH parts shows its parts as columns across the horizontal slider;
+    // within each column the instances scroll vertically inside a window capped
+    // to the part's tallest instance card, so only one shows at a time and the
+    // widget never grows tall with instance count. Previews change card heights
+    // as they load lazily, so re-fit via ResizeObserver; the hint hides when a
+    // column isn't scrollable (single-instance parts).
+    // ===========================================================
+    (function () {
+      var cols = document.querySelectorAll(".part-vscroll");
+      if (!cols.length) return;
+      function fit(sc) {
+        var max = 0;
+        sc.querySelectorAll(":scope > .block-card").forEach(function (c) {
+          if (c.offsetHeight > max) max = c.offsetHeight;
+        });
+        if (max) sc.style.height = max + "px";
+        var hint = sc.parentNode.querySelector(".part-hint");
+        if (hint) hint.style.visibility = (sc.scrollHeight > sc.clientHeight + 2) ? "" : "hidden";
+      }
+      cols.forEach(function (sc) {
+        fit(sc);
+        if ("ResizeObserver" in window) {
+          var ro = new ResizeObserver(function () { fit(sc); });
+          sc.querySelectorAll(":scope > .block-card").forEach(function (c) { ro.observe(c); });
+        }
+      });
+      window.addEventListener("load", function () { cols.forEach(fit); });
     })();
 
     // ===========================================================
