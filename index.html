@@ -336,15 +336,6 @@
       padding: 36px;
       box-shadow: 0 30px 70px -45px rgba(0, 0, 0, 0.9);
     }
-    /* Perf: let the browser skip rendering these large funnel / results widgets */
-    /* while they're off-screen. contain-intrinsic-size reserves their space so   */
-    /* there's no layout shift, and content is never hidden from the user (it     */
-    /* renders as it approaches the viewport). Scoped to the showcase widgets     */
-    /* only — the booking-modal .row-widget is not a .deliverables-scale child.   */
-    .deliverables-scale > .row-widget {
-      content-visibility: auto;
-      contain-intrinsic-size: auto 1500px;
-    }
 
     /* Sub-widget: one deliverable TYPE nested inside a funnel widget. Groups   */
     /* that type's samples under their own heading + slider, so each funnel     */
@@ -670,7 +661,7 @@
     .dp-win {
       position: relative;
       width: 100%;
-      aspect-ratio: 1 / 1;   /* placeholder until the natural ratio is set (JS) */
+      aspect-ratio: 3 / 4;   /* all preview windows are 4:3 vertical (image crops via cover) */
       border-radius: 12px;   /* rounded corners on every preview card */
       overflow: hidden;
     }
@@ -2190,7 +2181,6 @@
           if (i >= list.length) return fail(win);
           var img = new Image();
           img.decoding = "async";
-          img.loading = "lazy";
           img.className = "dp-media";
           img.onload = function () {
             if (!img.naturalWidth || !img.naturalHeight) { i++; return attempt(); }
@@ -2258,8 +2248,9 @@
         pre.appendChild(win);
         wrapDiv.parentNode.insertBefore(pre, wrapDiv); // between sample-label and CTA
 
-        // Natural ratio for everything except landing pages (fixed 3:4).
-        function render() { renderImage(win, imgList, !isScroll); }
+        // Every preview window is a fixed 4:3 vertical (3:4) card (CSS); the
+        // image crops to fill via object-fit:cover, so never set a natural ratio.
+        function render() { renderImage(win, imgList, false); }
         return { win: win, render: render };
       }
 
