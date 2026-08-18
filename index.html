@@ -99,7 +99,7 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
 
-    /* Fixed faint sage grid overlay at ~0.04 opacity, 72px cell */
+    /* Fixed faint sage grid overlay at ~0.04 opacity, 36px cell */
     .grid-overlay {
       position: fixed;
       inset: 0;
@@ -109,25 +109,7 @@
       background-image:
         linear-gradient(to right, var(--sage) 1px, transparent 1px),
         linear-gradient(to bottom, var(--sage) 1px, transparent 1px);
-      background-size: 72px 72px;
-    }
-
-    /* One soft sage radial glow at the very top, behind the hero, low opacity */
-    .hero-glow {
-      position: fixed;
-      top: -240px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 1100px;
-      height: 700px;
-      z-index: 0;
-      pointer-events: none;
-      background: radial-gradient(
-        ellipse at center,
-        rgba(177, 247, 204, 0.12) 0%,
-        rgba(177, 247, 204, 0.05) 38%,
-        transparent 70%
-      );
+      background-size: 36px 36px;
     }
 
     /* Clipping wrapper for the scaled page. transform: scale() leaves the    */
@@ -239,7 +221,8 @@
       box-shadow:
         0 0 0 1px rgba(177, 247, 204, 0.08),
         0 24px 70px -28px rgba(177, 247, 204, 0.35),
-        0 18px 50px -30px rgba(0, 0, 0, 0.8);
+        0 18px 50px -30px rgba(0, 0, 0, 0.8),
+        0 0 36px 5px rgba(177, 247, 204, 0.32); /* sage glow */
     }
 
     .video-frame iframe {
@@ -282,14 +265,14 @@
     .vplayer:-webkit-full-screen { width:100vw; height:100vh; background:#000; }
     .vplayer:-webkit-full-screen video { object-fit:contain; }
 
-    /* ============ MIRO BOARD (Client Results) ============ */
-    /* Responsive 16:9 (1920x1080) frame that fills the widget width and keeps  */
-    /* its ratio on every screen. Same sage-frame treatment as the hero video;  */
-    /* width:100% so it sits inside the .row-widget rather than the content col. */
+    /* ============ CLIENT-RESULTS BOARD (homemade, draggable/zoomable) ======= */
+    /* Framed 4:3 wrapper that fills the widget width and keeps its ratio on     */
+    /* every screen. Same sage-frame treatment as the hero video; width:100% so  */
+    /* it sits inside the .row-widget rather than the content col.               */
     .miro-frame {
       position: relative;
       width: 100%;
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 4 / 3;   /* 4:3 horizontal widget, like the type widgets */
       border-radius: 16px;
       overflow: hidden;
       background-color: var(--card);
@@ -299,12 +282,28 @@
         0 24px 70px -28px rgba(177, 247, 204, 0.35),
         0 18px 50px -30px rgba(0, 0, 0, 0.8);
     }
-    .miro-frame iframe {
+    /* Homemade draggable/zoomable board (replaces the Miro embed) — fills the    */
+    /* same framed wrapper; the image is panned/zoomed via a CSS transform.       */
+    .miro-frame .board {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
+      overflow: hidden;
+      cursor: grab;
+      touch-action: none;
+      background-color: #2e2e2e; /* match the board image's own background */
+    }
+    .miro-frame .board.is-dragging { cursor: grabbing; }
+    .miro-frame .board-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+      max-width: none;
     }
 
     /* ============================================================= */
@@ -331,21 +330,33 @@
     .row-widget {
       position: relative;
       background-color: var(--surface);
-      border: 1px solid rgba(177, 247, 204, 0.18);
+      border: 1px solid var(--sage);
       border-radius: 22px;
       padding: 36px;
-      box-shadow: 0 30px 70px -45px rgba(0, 0, 0, 0.9);
+      box-shadow:
+        0 30px 70px -45px rgba(0, 0, 0, 0.9),
+        0 0 42px 5px rgba(177, 247, 204, 0.30); /* sage glow */
     }
+    /* Client-results board: no wrapper padding so the 4:3 board sits flush (no
+       band above/below); drop the inner frame's redundant border so the widget
+       reads as one clean 4:3 box. */
+    .row-widget.board-widget { padding: 0; aspect-ratio: 4 / 3; overflow: hidden; }
+    .row-widget.board-widget .miro-frame { border: 0; border-radius: 22px; height: 100%; }
 
     /* Sub-widget: one deliverable TYPE nested inside a funnel widget. Groups   */
     /* that type's samples under their own heading + slider, so each funnel     */
     /* (row) widget reads as a stack of labelled type groups.                   */
     .sub-widget {
       position: relative;
+      aspect-ratio: 4 / 3;   /* type widget frame: 4:3 horizontal */
       background-color: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--hairline);
+      border: 1px solid var(--sage);
       border-radius: 16px;
-      padding: 28px;
+      padding: 0 28px 28px;   /* top gap comes from the heading's own margin */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
     .sub-heading {
       font-family: "Roboto Slab", serif;
@@ -354,6 +365,7 @@
       color: var(--ink);
       text-align: center;
       font-size: 20px;
+      margin: 52px 0 28px;   /* nudged down so the gap above visually equals the gap below */
     }
     /* Re-base the slider's edge-bleed to the sub-widget padding (28px) instead */
     /* of the outer widget padding (36px) so the cards still reach the inner    */
@@ -364,6 +376,8 @@
       margin-left: -28px;
       margin-right: -28px;
       scroll-padding: 0 28px;
+      align-self: stretch;              /* stay full width inside the centred column */
+      justify-content: safe center;     /* centre the parts when they fit; start-align if they overflow */
     }
 
     /* ============ INFO BUTTON + POPUP ============ */
@@ -634,8 +648,9 @@
     /* Internal padding (56px) matches the doubled element gaps.              */
     .block-card {
       position: relative;
+      aspect-ratio: 3 / 4;   /* instance widget frame: 4:3 vertical */
       background-color: var(--card);
-      border: 1px dashed rgba(177, 247, 204, 0.45);
+      border: 1px solid var(--sage);
       border-radius: 18px;
       padding: 28px;
       box-shadow: 0 24px 60px -40px rgba(0, 0, 0, 0.9);
@@ -661,7 +676,7 @@
     .dp-win {
       position: relative;
       width: 100%;
-      aspect-ratio: 3 / 4;   /* all preview windows are 4:3 vertical (image crops via cover) */
+      aspect-ratio: 1 / 1;   /* placeholder until the image's natural ratio is set (JS) */
       border-radius: 12px;   /* rounded corners on every preview card */
       overflow: hidden;
     }
@@ -793,8 +808,9 @@
       scroll-snap-type: none;
     }
 
-    /* Small swipe affordance under the slider. */
+    /* Swipe/scroll hints removed — the scrollbar already signals scrollability. */
     .slider-hint {
+      display: none;
       font-family: "JetBrains Mono", monospace;
       font-weight: 500;
       font-size: 0.72rem;
@@ -803,35 +819,67 @@
       color: var(--muted);
     }
 
-    /* ============ PART COLUMNS (vertical one-card-tall scrollers) ============ */
+    /* ============ PART COLUMNS (framed 3:4, vertical scroll) ============ */
     /* A type WITH parts lays its parts out as columns across the horizontal      */
-    /* slider (above); WITHIN each column the instances scroll VERTICALLY inside  */
-    /* a fixed window one instance-card tall (height set by JS = the part's       */
-    /* tallest card) with vertical snap, so the widget never grows tall with      */
-    /* instance count. The part label stays above the scroller; the hint below.   */
-    .part-vscroll {
+    /* slider (above). Each part column is a fixed 4:3-vertical framed box; its    */
+    /* instance cards fill the column width and scroll VERTICALLY inside it, so    */
+    /* the parts row never grows with instance count. The scrollbar signals more.  */
+    .deliverables-slider > div {
+      aspect-ratio: 3 / 4;
+      align-self: center;
+      overflow: hidden;         /* the 3/4 frame holds regardless of content */
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      border: 1px solid var(--sage);
+      border-radius: 16px;
+      padding: 0 1rem 1.25rem;
+    }
+    .deliverables-slider > div > .sample-label { padding: 1.25rem 0; margin: 0; flex: 0 0 auto; }
+    .part-vscroll {
+      flex: 1 1 auto;
+      min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
-      scroll-snap-type: y mandatory;
+      scroll-snap-type: none;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
       scrollbar-color: rgba(177, 247, 204, 0.4) transparent;
     }
-    /* Cards here are vertical snap targets and fill the column width (override    */
-    /* the horizontal slider's width:250px / centre snap for these nested cards). */
-    .part-vscroll > .block-card {
-      flex: 0 0 auto;
-      width: 100%;
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
-    }
     .part-vscroll::-webkit-scrollbar { width: 8px; }
     .part-vscroll::-webkit-scrollbar-track { background: transparent; }
     .part-vscroll::-webkit-scrollbar-thumb { background-color: rgba(177, 247, 204, 0.3); border-radius: 9999px; }
+    /* Cards fill the padded part column (so each instance's preview and CTA span
+       the same width), and keep a gap above/below the next. */
+    .part-vscroll > .block-card { width: auto; margin-top: 0; }
+    .part-vscroll > .block-card + .block-card { margin-top: 1.5rem; }
     .part-hint { text-align: center; }
+    /* Part-instance CTA matches every other cta-sm button — SAME text size and
+       full card width (never fit-content, so it never collapses to a pill). The
+       main line may wrap in a narrow column instead of stretching the box. */
+    .part-vscroll .cta-button.cta-sm { width: 100%; }
+    .part-vscroll .cta-button.cta-sm .cta-main { white-space: normal; font-size: 0.6567rem; } /* 0.5710 * 1.15 */
+    .part-vscroll .cta-button.cta-sm .cta-sub { font-size: 0.3258rem; }                       /* 0.2833 * 1.15 */
+    /* Single/Stack previews (Direct-to-camera + Sequences): size the preview by
+       the IMAGE itself — a full-width img at its natural height — so the preview
+       WIDTH always equals the card/CTA width. This overrides the JS-set inline
+       aspect-ratio box + absolute-fill media, which were leaving them narrower. */
+    .block-card[data-preview="Flat"] .dp-preview,
+    .block-card[data-preview="Stack"] .dp-preview { width: 100%; max-width: none; min-width: 0; }
+    .block-card[data-preview="Flat"] .dp-win,
+    .block-card[data-preview="Stack"] .dp-win {
+      width: 100%; max-width: none; min-width: 0;
+      aspect-ratio: auto !important;   /* drop the inline natural-ratio box */
+      height: auto;
+    }
+    .block-card[data-preview="Flat"] .dp-media,
+    .block-card[data-preview="Stack"] .dp-media {
+      position: static !important;     /* flow the image so it drives the box width */
+      width: 100%;
+      height: auto;
+    }
+    /* 15px of padding above and below every part-instance preview. */
+    .part-vscroll .dp-preview { margin: 15px 0; }
+    .part-vscroll .block-card .mt-6 { margin-top: 0; }
 
     /* ============ CALL TO ACTION BUTTON ============ */
     /* Flat sage with dark text (the agency's colours). Two-line structure:    */
@@ -1179,7 +1227,6 @@
   <!-- ============================================================= -->
 
   <!-- ATMOSPHERE LAYERS -->
-  <div class="hero-glow" aria-hidden="true"></div>
   <div class="grid-overlay" aria-hidden="true"></div>
   <div class="grain-overlay" aria-hidden="true"></div>
 
@@ -1727,23 +1774,15 @@
         </h2>
 
         <div class="deliverables-scale">
-          <div class="row-widget fade-up mt-10">
-            <!-- Responsive 16:9 (1920x1080) wrapper: aspect-ratio box with the -->
-            <!-- iframe absolutely filling it, so the board scales with the      -->
-            <!-- widget width and never overflows / clips on mobile.             -->
+          <div class="row-widget board-widget fade-up mt-10">
+            <!-- The board fills this widget as a flush 4:3 frame (no padding).  -->
             <div class="miro-frame">
-              <!-- Live Miro board embed URL (Share > Embed). moveToViewport pins -->
-              <!-- the board to a fixed view so it loads the same on every refresh. -->
-              <iframe
-                width="768" height="432"
-                src="https://miro.com/app/live-embed/uXjVHTCSuB4=/?embedMode=view_only_without_ui&moveToViewport=-60877,-75597,28176,13985&embedId=529974374057"
-                title="Client results board"
-                frameborder="0"
-                scrolling="no"
-                loading="lazy"
-                allowfullscreen
-                allow="fullscreen; clipboard-read; clipboard-write">
-              </iframe>
+              <!-- Self-contained homemade board: drag to pan, wheel/pinch to    -->
+              <!-- zoom, bounded to the image + margin (see the board script).    -->
+              <div class="board" id="results-board" role="img" aria-label="Client results board">
+                <img class="board-img" id="results-board-img"
+                     src="Social%20Proof.PNG" alt="Client results board" draggable="false" />
+              </div>
             </div>
           </div>
         </div>
@@ -1828,21 +1867,40 @@
       bigplay.addEventListener("click", function(e){ e.stopPropagation(); toggle(); });
       playBtn.addEventListener("click", function(e){ e.stopPropagation(); toggle(); });
       function pct(x){ return (Math.max(0,Math.min(1,x))*100)+"%"; }
-      // Logarithmic playback indicator: displayed fraction "shown" from the real
-      // fraction t = currentTime/duration, shown = 1 - (1 - t)^3 (k=3, so t=0.5
-      // shows 0.875). The bar fill, handle, and aria value use shown; the real
-      // <video>.currentTime is left untouched.
-      function shownFrac(t){ return 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3); }
+      // Piecewise-linear playback indicator: the bar fill + handle (and the ARIA
+      // position) show a WARPED position via linear interpolation through fixed
+      // anchor points, so early progress reads much further along. Seeking inverts
+      // the SAME map (realFromShown). The <video>.currentTime stays real/linear.
+      //   t:     0    0.125  0.25  0.5   0.75   1
+      //   shown: 0    0.25   0.5   0.70  0.86   1
+      var T = [0, 0.125, 0.25, 0.5, 0.75, 1];
+      var S = [0, 0.25, 0.5, 0.70, 0.86, 1];
+      function shown(t){
+        if (t <= 0) return 0;
+        if (t >= 1) return 1;
+        for (var i = 1; i < T.length; i++){
+          if (t <= T[i]){ var f = (t - T[i-1]) / (T[i] - T[i-1]); return S[i-1] + f * (S[i] - S[i-1]); }
+        }
+        return 1;
+      }
+      function realFromShown(s){
+        if (s <= 0) return 0;
+        if (s >= 1) return 1;
+        for (var i = 1; i < S.length; i++){
+          if (s <= S[i]){ var f = (s - S[i-1]) / (S[i] - S[i-1]); return T[i-1] + f * (T[i] - T[i-1]); }
+        }
+        return 1;
+      }
       function update(){
         if (!v.duration || isNaN(v.duration)) return;
-        var s = shownFrac(v.currentTime / v.duration);
+        var s = shown(v.currentTime / v.duration);
         played.style.width = pct(s); handle.style.left = pct(s);
         prog.setAttribute("aria-valuenow", Math.round(s*100));
-        if (v.buffered && v.buffered.length) buffered.style.width = pct(v.buffered.end(v.buffered.length-1)/v.duration);
+        if (v.buffered && v.buffered.length) buffered.style.width = pct(shown(v.buffered.end(v.buffered.length-1)/v.duration));
       }
       v.addEventListener("timeupdate", update);
       v.addEventListener("progress", update);
-      function seekTo(clientX){ var r = prog.getBoundingClientRect(); var shown = Math.max(0,Math.min(1,(clientX-r.left)/r.width)); if (v.duration){ var t = 1 - Math.pow(1 - shown, 1/3); v.currentTime = t*v.duration; update(); } }
+      function seekTo(clientX){ var r = prog.getBoundingClientRect(); var s = Math.max(0,Math.min(1,(clientX-r.left)/r.width)); if (v.duration){ v.currentTime = realFromShown(s) * v.duration; update(); } }
       var dragging = false;
       prog.addEventListener("pointerdown", function(e){ e.stopPropagation(); dragging = true; wrap.classList.add("vp-scrubbing"); if (prog.setPointerCapture) prog.setPointerCapture(e.pointerId); seekTo(e.clientX); });
       prog.addEventListener("pointermove", function(e){ if (dragging) seekTo(e.clientX); });
@@ -2152,8 +2210,8 @@
     // just the same rounded-corner card. Landing-page screenshots crop to a 4:3
     // vertical card (top of the page, cover); everything else keeps its natural
     // aspect ratio.
-    // Coming-soon / bracketed cards get nothing. Rendering is lazy
-    // (IntersectionObserver, ~200px). Every window is aria-hidden +
+    // Coming-soon / bracketed cards get nothing. Every preview is built
+    // immediately on load. Every window is aria-hidden +
     // pointer-events:none, so the CTA remains the ONLY way to open the lightbox
     // (which still opens the real assets, incl. real PDFs, and is untouched).
     // ===========================================================
@@ -2248,9 +2306,8 @@
         pre.appendChild(win);
         wrapDiv.parentNode.insertBefore(pre, wrapDiv); // between sample-label and CTA
 
-        // Every preview window is a fixed 4:3 vertical (3:4) card (CSS); the
-        // image crops to fill via object-fit:cover, so never set a natural ratio.
-        function render() { renderImage(win, imgList, false); }
+        // Natural ratio for everything except landing pages (fixed 3:4 scroll).
+        function render() { renderImage(win, imgList, !isScroll); }
         return { win: win, render: render };
       }
 
@@ -2261,19 +2318,11 @@
       });
       if (!items.length) return;
 
-      // Lazy: render each preview only when it scrolls near the viewport.
-      if (!("IntersectionObserver" in window)) {
-        items.forEach(function (it) { it.render(); });
-        return;
-      }
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          io.unobserve(entry.target);
-          if (entry.target.__dp) entry.target.__dp.render();
-        });
-      }, { rootMargin: "200px 0px" });
-      items.forEach(function (it) { it.win.__dp = it; io.observe(it.win); });
+      // Build every preview immediately on load. (An IntersectionObserver gate
+      // was tried for lazy RENDERING, but it does not fire reliably for these
+      // windows inside the transform-scaled, overflow-clipped .page, which left
+      // previews blank.)
+      items.forEach(function (it) { it.render(); });
     })();
 
     // ===========================================================
@@ -2662,34 +2711,150 @@
     })();
 
     // ===========================================================
-    // PART COLUMNS — vertical one-card-tall scrollers
-    // A type WITH parts shows its parts as columns across the horizontal slider;
-    // within each column the instances scroll vertically inside a window capped
-    // to the part's tallest instance card, so only one shows at a time and the
-    // widget never grows tall with instance count. Previews change card heights
-    // as they load lazily, so re-fit via ResizeObserver; the hint hides when a
-    // column isn't scrollable (single-instance parts).
+    // CLIENT RESULTS BOARD (self-contained, draggable + zoomable)
+    // Replaces the live Miro embed: drag to pan, wheel / pinch to zoom — like
+    // dragging around a Miro board. Panning is clamped to the image plus a small
+    // margin (no infinite empty space); min zoom fits the whole board in the
+    // frame; it always opens on the framed whole-board view. Vanilla JS, no
+    // libraries. Pointer coordinates are divided by the page's transform scale so
+    // pan/zoom track the pointer 1:1 inside the uniformly-scaled .page.
     // ===========================================================
     (function () {
-      var cols = document.querySelectorAll(".part-vscroll");
-      if (!cols.length) return;
-      function fit(sc) {
-        var max = 0;
-        sc.querySelectorAll(":scope > .block-card").forEach(function (c) {
-          if (c.offsetHeight > max) max = c.offsetHeight;
-        });
-        if (max) sc.style.height = max + "px";
-        var hint = sc.parentNode.querySelector(".part-hint");
-        if (hint) hint.style.visibility = (sc.scrollHeight > sc.clientHeight + 2) ? "" : "hidden";
+      var board = document.getElementById("results-board");
+      var img = document.getElementById("results-board-img");
+      if (!board || !img) return;
+      var iw = 0, ih = 0, scale = 1, minScale = 1, maxScale = 1, tx = 0, ty = 0;
+      var MARGIN = 0.6; // pan slack beyond the image, as a fraction of the frame
+      var ready = false;
+
+      function pageScale() {
+        var r = board.getBoundingClientRect();
+        return board.clientWidth ? r.width / board.clientWidth : 1;
       }
-      cols.forEach(function (sc) {
-        fit(sc);
-        if ("ResizeObserver" in window) {
-          var ro = new ResizeObserver(function () { fit(sc); });
-          sc.querySelectorAll(":scope > .block-card").forEach(function (c) { ro.observe(c); });
+      function apply() {
+        img.style.transform = "translate(" + tx + "px, " + ty + "px) scale(" + scale + ")";
+      }
+      function clampPan() {
+        var vw = board.clientWidth, vh = board.clientHeight;
+        var sw = iw * scale, sh = ih * scale;
+        var mx = vw * MARGIN, my = vh * MARGIN;
+        // Allow MARGIN slack in BOTH axes even when an axis exactly fills (or is
+        // smaller than) the frame, so the user can pan horizontally, vertically
+        // and diagonally without having to zoom in first. Only fall back to a
+        // hard centre if the slack range would be inverted.
+        var loX = vw - sw - mx, hiX = mx;
+        var loY = vh - sh - my, hiY = my;
+        tx = loX > hiX ? (vw - sw) / 2 : Math.min(hiX, Math.max(loX, tx));
+        ty = loY > hiY ? (vh - sh) / 2 : Math.min(hiY, Math.max(loY, ty));
+      }
+      function fitWhole() {
+        var vw = board.clientWidth, vh = board.clientHeight;
+        if (!iw || !ih || !vw || !vh) return;
+        // COVER the 4:3 frame edge-to-edge (no letterbox band); the frame height
+        // comes purely from its 4/3 CSS aspect-ratio. Off-frame parts are
+        // reachable by pan/zoom (clampPan + MARGIN).
+        minScale = Math.max(vw / iw, vh / ih);
+        maxScale = minScale * 6;
+        scale = minScale;
+        tx = (vw - iw * scale) / 2;
+        ty = (vh - ih * scale) / 2;
+        apply();
+      }
+      function onImg() {
+        if (ready) return;                 // only flip ready + fit once
+        iw = img.naturalWidth; ih = img.naturalHeight;
+        if (!iw || !ih) return;
+        img.style.width = iw + "px"; img.style.height = ih + "px";
+        ready = true;
+        fitWhole();
+      }
+      img.addEventListener("load", onImg);
+      if (img.complete && img.naturalWidth) onImg();
+      // Robustness: a cached/already-complete image can miss "load", so also try
+      // decode() and a short timeout. onImg is a no-op once ready, so calling it
+      // more than once is harmless.
+      if (img.decode) { img.decode().then(onImg).catch(function () {}); }
+      setTimeout(function () { if (!ready) onImg(); }, 500);
+
+      function zoomAt(cx, cy, factor) {
+        var ns = Math.min(maxScale, Math.max(minScale, scale * factor));
+        if (ns === scale) return;
+        var k = ns / scale;
+        tx = cx - (cx - tx) * k;
+        ty = cy - (cy - ty) * k;
+        scale = ns;
+        clampPan(); apply();
+      }
+
+      // --- Pointer pan (one finger / mouse) + pinch zoom (two fingers) ---
+      var pts = {}, pinchDist = 0;
+      function pcount() { var n = 0; for (var k in pts) if (pts.hasOwnProperty(k)) n++; return n; }
+      function twoPoints() {
+        var a = null, b = null;
+        for (var k in pts) { if (!pts.hasOwnProperty(k)) continue; if (!a) a = pts[k]; else b = pts[k]; }
+        return [a, b];
+      }
+      board.addEventListener("pointerdown", function (e) {
+        if (!ready) return;
+        pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+        board.classList.add("is-dragging");
+        if (board.setPointerCapture) { try { board.setPointerCapture(e.pointerId); } catch (err) {} }
+        if (pcount() === 2) {
+          var p = twoPoints();
+          pinchDist = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y) || 1;
         }
       });
-      window.addEventListener("load", function () { cols.forEach(fit); });
+      board.addEventListener("pointermove", function (e) {
+        if (!ready || !pts[e.pointerId]) return;
+        var ps = pageScale() || 1;
+        var prev = pts[e.pointerId];
+        pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+        if (pcount() >= 2) {
+          var p = twoPoints();
+          if (!p[0] || !p[1]) return;
+          var nd = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y) || 1;
+          var r = board.getBoundingClientRect();
+          var cx = ((p[0].x + p[1].x) / 2 - r.left) / ps;
+          var cy = ((p[0].y + p[1].y) / 2 - r.top) / ps;
+          zoomAt(cx, cy, nd / (pinchDist || nd));
+          pinchDist = nd;
+        } else {
+          tx += (e.clientX - prev.x) / ps;
+          ty += (e.clientY - prev.y) / ps;
+          clampPan(); apply();
+        }
+      });
+      function endPointer(e) {
+        if (pts[e.pointerId]) delete pts[e.pointerId];
+        if (pcount() === 0) board.classList.remove("is-dragging");
+      }
+      board.addEventListener("pointerup", endPointer);
+      board.addEventListener("pointercancel", endPointer);
+
+      // --- Wheel / trackpad ---
+      // Plain wheel / trackpad (and ctrl+wheel / pinch) ZOOM around the cursor —
+      // deltaY<0 in, else out. SHIFT+wheel does 2-axis PAN once zoomed past the
+      // fit. Drag also pans (above). The wheel is only trapped when it actually
+      // zooms/pans, so at the fit limit the page scrolls normally.
+      board.addEventListener("wheel", function (e) {
+        if (!ready) return;
+        var ps = pageScale() || 1;
+        if (e.shiftKey && scale > minScale + 1e-6) {
+          e.preventDefault();
+          tx -= e.deltaX / ps;
+          ty -= e.deltaY / ps;
+          clampPan();
+          apply();
+          return;
+        }
+        var before = scale;
+        var r = board.getBoundingClientRect();
+        zoomAt((e.clientX - r.left) / ps, (e.clientY - r.top) / ps, e.deltaY < 0 ? 1.12 : 1 / 1.12);
+        if (scale !== before) e.preventDefault();
+      }, { passive: false });
+
+      // Re-fit to the whole-board view on resize.
+      window.addEventListener("resize", function () { if (ready) fitWhole(); }, { passive: true });
     })();
 
     // ===========================================================
